@@ -1,0 +1,23 @@
+{
+  "name": "pc-sub-command-server",
+  "version": "1.0.0",
+  "description": "node server for pc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pc-sub",
+    "pc-sub-server"
+  ],
+  "author": "Jinc",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.13.1",
+    "pm2": "^0.14.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jincdream/pc-sub-command-server.git"
+  }
+}
