@@ -47,12 +47,12 @@ app.use('/api/:project/:type/:api',function(req,res){
 })
 
 // app.use('/',express.static('./'))
-app.use('/output/',express.static(_OUTPUT))
+app.use('/',express.static(_OUTPUT))
 app.use('/dev/',express.static(_DEV))
 // app.get('/t',function(req,res){
 //   res.end(_PORT)
 // })
-app.get('/',function(req,res){
+app.get('/JinC',function(req,res){
   res.end('Bad Boy,Bad Boy.')
 })
 console.log(path.resolve('./'))
