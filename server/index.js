@@ -1,5 +1,6 @@
 var express = require('express')
 var path = require('path')
+var compress = require('compression')
 var app = express()
 var _THIS_DIR = process.cwd()
 var _PORT = process.argv[2]
@@ -27,6 +28,7 @@ var errorHandler = function(err, req, res, next) {
   res.status(500);
   res.render('error', { error: err });
 }
+app.use(compress())
 // app.use(express.static(_OUTPUT));
 app.use('/api/:project/:type/:api',function(req,res){
   // var params = req.params.project.split('-')

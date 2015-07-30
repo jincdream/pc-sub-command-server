@@ -1,6 +1,6 @@
 {
   "name": "pc-sub-command-server",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "node server for pc",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "author": "Jinc",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.5.1",
     "express": "^4.13.1",
     "pm2": "^0.14.5"
   },
