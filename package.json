@@ -1,6 +1,6 @@
 {
   "name": "pc-sub-command-server",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "node server for pc",
   "main": "index.js",
   "scripts": {
