@@ -7,6 +7,7 @@ var qs = require('querystring')
 var multer = require('multer')
 var router = express.Router()
 var bodyP = require('body-parser')
+var fs  = require('fs')
 
 var app = express()
 var _THIS_DIR = process.cwd()
@@ -14,6 +15,7 @@ var _PORT = process.argv[2]
 console.log(_PORT)
 var _OUTPUT = path.join(_THIS_DIR, '/output/')
 var _DEV = path.join(_THIS_DIR, '/dev/')
+var _EDITE = path.join(_THIS_DIR, '/edite/')
   //通常 logErrors 来纪录诸如 stderr, loggly, 或者类似服务的错误信息：
 
 var logErrors = function(err, req, res, next) {
@@ -39,6 +41,20 @@ var errorHandler = function(err, req, res, next) {
     error: err
   });
 }
+var soketRes
+// process.setMaxListeners(50);
+// http.createServer(function(req,res){
+//   req.setMaxListeners(50);
+//   res.setMaxListeners(50);
+//   res.writeHead(200,{
+//     'Access-Control-Allow-Origin':'*',
+//     'Content-Type':'text/event-stream',
+//     "Cache-Control":"no-cache",
+//     "Connection":"keep-alive"
+//   });
+//   soketRes = res
+// }).listen(8033);
+
 
 app.use(bodyP.json())
 app.use(bodyP.urlencoded({
@@ -46,6 +62,50 @@ app.use(bodyP.urlencoded({
   }))
   // app.use(multer())
 app.use(compress())
+
+router.route('/editing/:project')
+  .all(function(req,res,next){
+    res.set({
+      // 'Content-Type': 'text/plain',
+      // 'Content-Length': '123',
+      // 'ETag': '12345'
+      "Access-Control-Allow-Origin": "*"
+    })
+    next()
+  })
+  .get(function(req,res,next){
+    var proData = path.resolve(_DEV, req.params.project,'./source/edite/_data.js')
+    
+    // res.end('proData')
+
+    new Promise(function(resolve,reject){
+      console.log(proData);
+      fs.readFile(proData,function(err,data){
+        err && reject(err)
+        !err && resolve(data)
+      })
+    }).then(function(data){
+      console.log('' + data)
+      res.json(JSON.parse('' + data))
+    }).catch(function(err){
+      console.log(err)
+      res.end(err)
+    })
+    // soketRes && soketRes.write("data: " + (new Date()) + "\n\n");
+    
+    // res.status(200).end('{a:1}')
+    // res.end("data: " + (new Date()) + "\n\n")
+  })
+  .post(function(req,res,next){
+    var data = req.body.data
+    var page = req.body.page
+    var dev = path.resolve(_DEV,req.params.project,'./page/'+page+'.html')
+    var devData = path.resolve(_DEV,req.params.project,'./page/_data.js')
+    fs.createWriteStream(path.resolve(_DEV,req.params.project,'./source/edite/_data.js')).write(data)
+    fs.writeFileSync(path.resolve(_DEV,req.params.project,'./page/_data.js'),new Buffer('module.exports.data = ' +data))
+    fs.createReadStream(path.resolve(_DEV,req.params.project,'./source/edite/'+page+'.html')).pipe(fs.createWriteStream(dev))
+    res.end('ok')
+  })
 
 router.route('/proxy.json')
   .all(function(req, res, next) {
@@ -211,6 +271,7 @@ app.use('/api/:project/:type/:api', function(req, res) {
 // app.use('/',express.static('./'))
 app.use('/', express.static(_OUTPUT))
 app.use('/dev/', express.static(_DEV))
+app.use('/edite/', express.static(_EDITE))
   // app.get('/t',function(req,res){
   //   res.end(_PORT)
   // })

@@ -36,14 +36,30 @@ exports.run = function(argv, cli, env){
         args: [port]
       }, function(err, apps) {
         if(err) console.error(err)
-        pm2.disconnect();
+        pm2.disconnect()
       });
+
+      // pm2.start({
+      //   watch: __dirname + '/socket/index.js',
+      //   name: name + '_socket',
+      //   script    : __dirname + '/socket/index.js',         // Script to be run
+      //   exec_mode : 'fork',        // Allow your app to be clustered
+      //   // instances : 4,           // Optional: Scale your app by 4
+      //   "cwd": process.cwd(),
+      //   max_memory_restart : '100M',   // Optional: Restart your app if it reaches 100Mo
+      //   args: [port]
+      // }, function(err, apps) {
+      //   if(err) console.error(err)
+      // });
     });
   }else if(argv.x || argv.stop){
     pm2.connect(function() {
       pm2.delete(name, function(err, apps) {
         pm2.disconnect();
       })
+      // pm2.delete(name + '_socket', function(err, apps) {
+      //   pm2.disconnect();
+      // })
     });
   }
 }
