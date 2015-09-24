@@ -15,7 +15,7 @@ var _PORT = process.argv[2]
 console.log(_PORT)
 var _OUTPUT = path.join(_THIS_DIR, '/output/')
 var _DEV = path.join(_THIS_DIR, '/dev/')
-var _EDITE = path.join(_THIS_DIR, '/edite/')
+var _EDIT = path.join(_THIS_DIR, '/edit/')
   //通常 logErrors 来纪录诸如 stderr, loggly, 或者类似服务的错误信息：
 
 var logErrors = function(err, req, res, next) {
@@ -74,7 +74,7 @@ router.route('/editing/:project')
     next()
   })
   .get(function(req,res,next){
-    var proData = path.resolve(_DEV, req.params.project,'./source/edite/_data.js')
+    var proData = path.resolve(_DEV, req.params.project,'./source/edit/_data.js')
     
     // res.end('proData')
 
@@ -101,9 +101,9 @@ router.route('/editing/:project')
     var page = req.body.page
     var dev = path.resolve(_DEV,req.params.project,'./page/'+page+'.html')
     var devData = path.resolve(_DEV,req.params.project,'./page/_data.js')
-    fs.createWriteStream(path.resolve(_DEV,req.params.project,'./source/edite/_data.js')).write(data)
+    fs.createWriteStream(path.resolve(_DEV,req.params.project,'./source/edit/_data.js')).write(data)
     fs.writeFileSync(path.resolve(_DEV,req.params.project,'./page/_data.js'),new Buffer('module.exports.data = ' +data))
-    fs.createReadStream(path.resolve(_DEV,req.params.project,'./source/edite/'+page+'.html')).pipe(fs.createWriteStream(dev))
+    fs.createReadStream(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'.html')).pipe(fs.createWriteStream(dev))
     res.end('ok')
   })
 
@@ -271,7 +271,7 @@ app.use('/api/:project/:type/:api', function(req, res) {
 // app.use('/',express.static('./'))
 app.use('/', express.static(_OUTPUT))
 app.use('/dev/', express.static(_DEV))
-app.use('/edite/', express.static(_EDITE))
+app.use('/edit/', express.static(_EDIT))
   // app.get('/t',function(req,res){
   //   res.end(_PORT)
   // })
