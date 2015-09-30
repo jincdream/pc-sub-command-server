@@ -1,9 +1,10 @@
 'use strict'
-var spawn = require('child_process').spawn
+var fork = require('child_process').fork
 var path = require('path')
 var pm2 = require('pm2')
 // var server = require('./server')
 var name = 'pcServer'
+var dirname = path.resolve(__dirname)
 exports.name = 'server'
 exports.usage = '<commad> [option]'
 exports.desc = 'open local server for liveaload and preview'
@@ -11,24 +12,23 @@ exports.desc = 'open local server for liveaload and preview'
 exports.options = {
   '-s, --start <port>': 'start a localserver with <port> || 8090',
   '-x, --stop': 'stop the loacal sertver',
-  '-start, --start <port>': 'start a localserver with <port> || 8090',
-  '-stop, --stop': 'stop the loacal sertver'
+  '-d, --debug <port>': 'debug the server'
 };
 exports.run = function(argv, cli, env){
   if (argv.h || argv.help) {
     return cli.help(exports.name, exports.options);
   }
   var command = argv._
+
   if(argv.s || argv.start){
+    var port = argv.s === true ? 8090 : (argv.s || argv.start)
     // server(argv.s)
     // process._server_port_ = argv.s
-    var port = argv.s === true ? 8090 : argv.s
     console.log('port:'+argv.s)
     pm2.connect(function() {
       pm2.start({
-        watch: __dirname + '/server/index.js',
         name: name,
-        script    : __dirname + '/server/index.js',         // Script to be run
+        script    : path.resolve(dirname,'./server/index.js'),         // Script to be run
         exec_mode : 'fork',        // Allow your app to be clustered
         // instances : 4,           // Optional: Scale your app by 4
         "cwd": process.cwd(),
@@ -52,7 +52,8 @@ exports.run = function(argv, cli, env){
       //   if(err) console.error(err)
       // });
     });
-  }else if(argv.x || argv.stop){
+  }
+  if(argv.x || argv.stop){
     pm2.connect(function() {
       pm2.delete(name, function(err, apps) {
         pm2.disconnect();
@@ -61,5 +62,13 @@ exports.run = function(argv, cli, env){
       //   pm2.disconnect();
       // })
     });
+  }
+  if(argv.d || argv.debug){
+    var port = argv.d === true ? 8090 : (argv.d || argv.debug)
+    var cwd = process.cwd()
+    var _c = fork(path.resolve(dirname,'./server/index.js'),[port],{
+      cwd:cwd
+    })
+    return _c
   }
 }
