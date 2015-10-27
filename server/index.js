@@ -8,6 +8,7 @@ var multer = require('multer')
 var router = express.Router()
 var bodyP = require('body-parser')
 var fs  = require('fs')
+var editRouter = require('./edit-router')
 
 var app = express()
 var _THIS_DIR = process.cwd()
@@ -63,57 +64,6 @@ app.use(bodyP.urlencoded({
   // app.use(multer())
 app.use(compress())
 
-router.route('/editing/:project/:page')
-  .all(function(req,res,next){
-    res.set({
-      // 'Content-Type': 'text/plain',
-      // 'Content-Length': '123',
-      // 'ETag': '12345'
-      "Access-Control-Allow-Origin": "*"
-    })
-    next()
-  })
-  .get(function(req,res,next){
-    console.log(req.params.page,'/////page.')
-    var proData = path.resolve(_DEV, req.params.project,'./source/edit/'+req.params.page+'_data.js')
-    // res.end('proData')
-    var files = fs.readdirSync(path.resolve(proData,'../'));
-    var _files = []
-    files.forEach(function(file, index){
-      console.log(path.extname(file))
-      if(path.extname(file) === '.html'){
-        _files.push(file)
-      }
-    })
-    new Promise(function(resolve,reject){
-      console.log(proData);
-      fs.readFile(proData,function(err,data){
-        err && reject(err)
-        !err && resolve(data)
-      })
-    }).then(function(data){
-      console.log('' + data)
-      res.json({html:_files,data:JSON.parse('' + data)})
-    }).catch(function(err){
-      console.log(err)
-      res.end(err)
-    })
-    // soketRes && soketRes.write("data: " + (new Date()) + "\n\n");
-    
-    // res.status(200).end('{a:1}')
-    // res.end("data: " + (new Date()) + "\n\n")
-  })
-  .post(function(req,res,next){
-    var data = req.body.data
-    var page = req.body.page
-    var dev = path.resolve(_DEV,req.params.project,'./page/'+page+'.html')
-    // var devData = path.resolve(_DEV,req.params.project,'./page/_data.js')
-    fs.writeFileSync(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'_data.js'),new Buffer(data))
-    // console.log(typeof data,'...',path.resolve(_DEV,req.params.project,'./source/edit/_data.js'))
-    // fs.writeFileSync(path.resolve(_DEV,req.params.project,'./page/_data.js'),new Buffer('module.exports.data = ' +data))
-    fs.createReadStream(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'.html')).pipe(fs.createWriteStream(dev))
-    res.end('ok')
-  })
 
 router.route('/proxy.json')
   .all(function(req, res, next) {
@@ -256,7 +206,7 @@ router.route('/proxy.json')
     })
   })
 app.use(router)
-
+app.use(editRouter)
 // app.use(express.static(_OUTPUT));
 app.use('/api/:project/:type/:api', function(req, res) {
   // var params = req.params.project.split('-')
