@@ -25,7 +25,7 @@ var parseHtml = function(host,project,_html,json){
                   index = "_{{@index}}"
                   parent = "data-parent='"+_b+"' data-parentIndex='{{@index}}'"
                 }
-                return parent + ' title="请揉捏我。主人″\(^o^)/~" data-id="' + a + b + index + '"' + m
+                return parent + ' title="请揉捏我。主人″\(^o^)/~" data-mock-click="true" data-id="' + a + b + index + '"' + m
               })
               .replace(/\{\{(mock[\d]*?_(?:text|title)_)(.*?)\}\}/igm,function(m,a,b){
                 var parent = ''
@@ -38,7 +38,10 @@ var parseHtml = function(host,project,_html,json){
                   index = "_{{@index}}"
                 }
                 // return `<mock title="请揉捏我。主人\(^o^)/~" ${parent} data-id="${a}${b}${index}">${m}</mock>`
-                return '<mock title="请揉捏我。主人\(^o^)/~" '+parent+' data-id="'+a + b + index+'">'+m+'</mock>'
+                return '<mock data-mock-click="true" title="请揉捏我。主人\(^o^)/~" '+parent+' data-id="'+a + b + index+'">'+m+'</mock>'
+              })
+              .replace(/\{\{\{(mock[\d]*?_html_.*?)\}\}\}/igm,function(m,a){
+                return '<mockhtml data-mock-click="true" data-id="'+a+'" style="display:block;">'+m+'</mockhtml>'
               })
               .replace(/<\/body\>/,'<script></script>\n</body>')
   return Handlebars.compile(html)(json)
@@ -116,9 +119,13 @@ editRouter.route('/editing/:project/:page')
   .post(function(req,res,next){
     var data = req.body.data
     var page = req.body.page
-    var dev = path.resolve(_DEV,req.params.project,'./page/'+page+'.html')
+    var project = req.params.project
+    var dev = path.resolve(_DEV,project,'./page/'+page+'.html')
+    var backup   = path.resolve(_EDIT,project,page+'_backup_data.js')
+    var _buffer =new Buffer(data)
     // var devData = path.resolve(_DEV,req.params.project,'./page/_data.js')
-    fs.writeFileSync(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'_data.js'),new Buffer(data))
+    fs.writeFileSync(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'_data.js'),_buffer)
+    fs.writeFileSync(backup,_buffer);
     // console.log(typeof data,'...',path.resolve(_DEV,req.params.project,'./source/edit/_data.js'))
     // fs.writeFileSync(path.resolve(_DEV,req.params.project,'./page/_data.js'),new Buffer('module.exports.data = ' +data))
     fs.createReadStream(path.resolve(_DEV,req.params.project,'./source/edit/'+page+'.html')).pipe(fs.createWriteStream(dev))
